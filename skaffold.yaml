@@ -1,0 +1,30 @@
+apiVersion: skaffold/v1beta2
+kind: Config
+build:
+  artifacts:
+  - image: changeme
+    context: .
+    docker: {}
+  tagPolicy:
+    envTemplate:
+      template: '{{.DOCKER_REGISTRY}}/mohangarimella-gmail-com/testjava:{{.VERSION}}'
+  local: {}
+deploy:
+  kubectl: {}
+profiles:
+- name: dev
+  build:
+    artifacts:
+    - docker: {}
+    tagPolicy:
+      envTemplate:
+        template: '{{.DOCKER_REGISTRY}}/mohangarimella-gmail-com/testjava:{{.DIGEST_HEX}}'
+    local: {}
+  deploy:
+    helm:
+      releases:
+      - name: testjava
+        chartPath: charts/testjava
+        setValueTemplates:
+          image.repository: '{{.DOCKER_REGISTRY}}/mohangarimella-gmail-com/testjava'
+          image.tag: '{{.DIGEST_HEX}}'
